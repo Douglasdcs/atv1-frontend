@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 export default function TopNavbar() {
   return (
-    <Navbar bg="light" expand="lg" className="w-100">
+    <Navbar bg="light" expand="lg" className="w-100 position-relative">
       <Container fluid>
         <Navbar.Brand href="#">GenTest</Navbar.Brand>
         <Navbar.Toggle />
@@ -18,14 +18,3 @@ export default function TopNavbar() {
     </Navbar>
   );
 }
-
-// <Navbar bg="light" expand="lg" className="w-100">
-//   <Container fluid> 
-//     <Navbar.Brand href="#">GenTest</Navbar.Brand>
-//     <Navbar.Toggle />
-//     <Navbar.Collapse>
-//       <Nav className="me-auto">
-//       </Nav>
-//     </Navbar.Collapse>
-//   </Container>
-// </Navbar>

@@ -6,34 +6,46 @@ import CardSection from './components/CardSection';
 
 export default function App() {
   return (
-    <div className="d-flex flex-column min-vh-100">
-      <BrowserRouter>
+    <BrowserRouter>
+      <div className="d-flex flex-column min-vh-100">
         <TopNavbar />
-        <div className="flex-grow-1 container-fluid">
+        <main className="flex-fill">
           <Routes>
             <Route
               path="/"
               element={
-                <>
+                <div className="container-fluid py-4">
                   <SobreProjeto />
                   <CardSection />
-                </>
+                </div>
               }
             />
             <Route
               path="/trabalhos"
               element={
-                <h2 className="text-center mt-5">Trabalhos Relacionados (em breve)</h2>
+                <div className="container-fluid text-center py-5">
+                  <h2>Trabalhos Relacionados</h2>
+                  <p>Trabalho 1</p>
+                  <p>Trabalho 2</p>
+                  <p>Trabalho 3</p>
+                  <p>Trabalho 4</p>
+                </div>
               }
             />
             <Route
               path="/contato"
-              element={<h2 className="text-center mt-5">Contato (em breve)</h2>}
+              element={
+                <div className="container-fluid text-center py-5">
+                  <h2>Contato</h2>
+                  
+                  <p>Douglas: douglas@gmail.com</p>
+                </div>
+              }
             />
           </Routes>
-        </div>
+        </main>
         <Footer />
-      </BrowserRouter>
-    </div>
+      </div>
+    </BrowserRouter>
   );
 }
