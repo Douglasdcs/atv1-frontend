@@ -3,6 +3,7 @@ import TopNavbar from './components/Navbar';
 import Footer from './components/Footer';
 import SobreProjeto from './components/SobreProjeto';
 import CardSection from './components/CardSection';
+import TrabalhosRelacionados from './components/TrabalhosRelacionados';
 
 export default function App() {
   return (
@@ -23,12 +24,15 @@ export default function App() {
             <Route
               path="/trabalhos"
               element={
-                <div className="container-fluid text-center py-5">
-                  <h2>Trabalhos Relacionados</h2>
-                  <p>Trabalho 1</p>
-                  <p>Trabalho 2</p>
-                  <p>Trabalho 3</p>
-                  <p>Trabalho 4</p>
+                // <div className="container-fluid text-center py-5">
+                //   <h2>Trabalhos Relacionados</h2>
+                //   <p>Trabalho 1</p>
+                //   <p>Trabalho 2</p>
+                //   <p>Trabalho 3</p>
+                //   <p>Trabalho 4</p>
+                // </div>
+                <div className="container-fluid">
+                  <TrabalhosRelacionados/>
                 </div>
               }
             />
