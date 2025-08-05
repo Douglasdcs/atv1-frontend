@@ -10,7 +10,7 @@ export default function App() {
     <BrowserRouter>
       <div className="d-flex flex-column min-vh-100">
         <TopNavbar />
-        <main className="flex-fill">
+        <main className="flex-fill overflow-auto">
           <Routes>
             <Route
               path="/"
@@ -31,8 +31,8 @@ export default function App() {
                 //   <p>Trabalho 3</p>
                 //   <p>Trabalho 4</p>
                 // </div>
-                <div className="container-fluid">
-                  <TrabalhosRelacionados/>
+                <div className="container-fluid py-5">
+                  <TrabalhosRelacionados />
                 </div>
               }
             />
