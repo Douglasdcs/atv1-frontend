@@ -1,0 +1,83 @@
+// prisma/seed.ts
+import { PrismaClient } from '@prisma/client'
+import { Prisma } from '@prisma/client'
+
+const prisma = new PrismaClient()
+
+type ProductInput = Prisma.ProductCreateManyInput //teste
+
+
+async function main() {
+  console.log('Iniciando seed do banco de dados...')
+
+  // Limpa a tabela antes de popular
+  await prisma.product.deleteMany()
+
+  // Cria produtos de exemplo
+  const products = await prisma.product.createMany({
+    data: [
+      {
+        title: "Notebook de Última Geração",
+        description: "Um notebook poderoso para trabalho e lazer.",
+        price: 4500.00,
+        imageUrl: "/images/notebook.png",
+        isFeatured: true
+      },
+      {
+        title: "Smartphone Avançado",
+        description: "Capture os melhores momentos com uma câmera de alta resolução.",
+        price: 2800.00,
+        imageUrl: "/images/smartphone.png",
+        isFeatured: false
+      },
+      {
+        title: "Teclado Mecânico RGB",
+        description: "Alta performance e feedback tátil para gamers e programadores.",
+        price: 350.50,
+        imageUrl: "/images/teclado.png",
+        isFeatured: true
+      },
+      {
+        title: "Mouse Ergonômico Sem Fio",
+        description: "Conforto e precisão para longas horas de uso.",
+        price: 120.00,
+        imageUrl: "/images/mouse.png",
+        isFeatured: false
+      },
+      {
+        title: "Monitor 4K HDR",
+        description: "Cores vibrantes e detalhes impressionantes para profissionais.",
+        price: 1899.99,
+        imageUrl: "/images/monitor.png",
+        isFeatured: true
+      },
+    ]
+  })
+
+  console.log(` (v) ${products.count} produtos criados com sucesso!`)
+}
+
+main()
+  .catch((e) => {
+    console.error('(x) Erro ao popular o banco:', e)
+    process.exit(1)
+  })
+  .finally(async () => {
+    await prisma.$disconnect()
+  })
+
+// import { Prisma } from "@prisma/client";
+
+// type ProductInput = Prisma.ProductCreateManyInput;
+
+// const test: ProductInput = {
+//   title: "Teste",
+//   description: "Produto de teste",
+//   price: 10.5,
+//   imageUrl: "/images/teste.png",
+//   isFeatured: true,
+//   createdAt: new Date(),
+//   updatedAt: new Date()
+// };
+
+// console.log(test);
