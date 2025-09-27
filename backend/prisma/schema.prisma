@@ -17,7 +17,7 @@ datasource db {
   url      = env("DATABASE_URL") // Lê do arquivo .env
 }
 
-// Nosso primeiro modelo - a tabela de produtos!
+// Tabela de produtos
 model Product {
   id          Int      @id @default(autoincrement())
   title       String   @db.VarChar(255)
