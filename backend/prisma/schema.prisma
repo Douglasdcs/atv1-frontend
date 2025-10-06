@@ -18,16 +18,16 @@ datasource db {
 }
 
 // Tabela de produtos
-model Product {
-  id          Int      @id @default(autoincrement())
-  title       String   @db.VarChar(255)
-  description String   @db.Text
-  price       Decimal  @db.Decimal(10, 2) // 10 dígitos total, 2 após vírgula
-  imageUrl    String   @map("image_url") // No banco será image_url
-  isFeatured  Boolean  @default(false) @map("is_featured")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+model TrabalhoRelacionado {
+  id       Int      @id @default(autoincrement())
+  title    String   @db.VarChar(255)
+  doi      String   @db.VarChar(255)
+  resumo   String   @db.Text
+  autor    String   @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("products") // Nome da tabela no banco
+  @@map("trabalhos_relacionados")
 }
+
 

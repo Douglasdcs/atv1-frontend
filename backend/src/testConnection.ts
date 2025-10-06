@@ -3,10 +3,10 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient();
 
 async function test() {
-  const products = await prisma.product.findMany();
+  const trabalhos = await prisma.trabalhoRelacionado.findMany();
 
-  products.forEach(element => {
-    console.log(`${element.title} - R$ ${element.price}`)
+  trabalhos.forEach(element => {
+    console.log(`${element.title} - R$ ${element.autor}`)
   });
 }
 

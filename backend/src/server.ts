@@ -20,18 +20,18 @@ app.listen(PORT, () => {
 // Middleware para JSON
 app.use(express.json());
 
-// Rota para pegar todos os produtos
-app.get('/api/produtos', async (req: Request, res: Response) => {
+// Rota para pegar todos os trabalhos relacionados
+app.get('/api/trabalhos', async (req: Request, res: Response) => {
   try{
-    const products = await prisma.product.findMany();
-    return res.status(200).json(products);
+    const trabalhos = await prisma.trabalhoRelacionado.findMany();
+    return res.status(200).json(trabalhos);
   } catch (err) {
-    return res.status(500).json( {error: "Erro ao listar os produtos"} )
+    return res.status(500).json( {error: "Erro ao listar os trabalhos"} )
   }
 });
 
-// Rota para pegar produto pelo ID
-app.get('/api/produtos/:id', async (req, res) => {
+// Rota para pegar trabalho pelo ID
+app.get('/api/trabalhos/:id', async (req, res) => {
   const id = Number(req.params.id); // converte o ID para number
   
   if  (!Number.isInteger(id) || id <= 0) {
@@ -39,35 +39,33 @@ app.get('/api/produtos/:id', async (req, res) => {
   }
 
   try {
-    const product = await prisma.product.findUnique({
-    where: { id },
+    const trabalho = await prisma.trabalhoRelacionado.findUnique({
+      where: { id },
     });
 
-    if (!product) return res.status(404).json({ message: 'Produto não encontrado' });
+    if (!trabalho) return res.status(404).json({ message: 'Trabalho não encontrado' });
 
-    return res.status(200).json(product)
+    return res.status(200).json(trabalho)
   } catch (error) {
-    return res.status(500).json( {error: "Erro ao buscar o produto"} )
+    return res.status(500).json( {error: "Erro ao buscar o trabalho"} )
   }
 });
 
-// Schema de criação de produto
-export const createProductSchema = z.object({
+// Schema de criação de trabalho
+export const createTrabalhoSchema = z.object({
   title: z.string().min(3, 'Título deve ter pelo menos 3 caracteres'),
-  description: z.string().min(10, 'Descrição deve ter pelo menos 10 caracteres'),
-  // coerce: tenta converter "2800" (string) em número antes de validar positive()
-  price: z.coerce.number().positive('Preço deve ser maior que zero'),
-  imageUrl: z.string().min(1, 'imageUrl não pode ser vazio'),
-  isFeatured: z.coerce.boolean().optional().default(false), // true/false/"true"/"false"
+  doi: z.string().min(5, 'DOI deve ter pelo menos 5 caracteres'),
+  resumo: z.string().min(10, 'Resumo deve ter pelo menos 10 caracteres'),
+  autor: z.string().min(3, 'Autor deve ter pelo menos 3 caracteres'),
 })
 
-// Rota para criação de produto
-app.post('/api/produtos', async (req: Request, res: Response) => {
+// Rota para criação de trabalho
+app.post('/api/trabalhos', async (req: Request, res: Response) => {
   try {
 
-    const data = createProductSchema.parse(req.body) // Validações
-    const newProduct = await prisma.product.create({ data })
-    return res.status(201).json(newProduct)
+    const data = createTrabalhoSchema.parse(req.body) // Validações
+    const newTrabalho = await prisma.trabalhoRelacionado.create({ data })
+    return res.status(201).json(newTrabalho)
 
   } catch (error) {
 
@@ -79,35 +77,32 @@ app.post('/api/produtos', async (req: Request, res: Response) => {
           message: e.message,
         })),
       })
-
     }
 
-    console.error('POST /api/products error:', error)
-    return res.status(500).json({ error: 'Erro interno no servidor ao criar produto' })
+    console.error('POST /api/trabalhos error:', error)
+    return res.status(500).json({ error: 'Erro interno no servidor ao criar trabalho' })
   }
 })
 
-// Schema de atualização de produto
-export const updateProductSchema = createProductSchema.partial();
+// Schema de atualização de trabalho
+export const updateTrabalhoSchema = createTrabalhoSchema.partial();
 
-// Rota para atualização de produto
-app.put('/api/produtos/:id', async (req: Request, res: Response) => {
+// Rota para atualização de trabalho
+app.put('/api/trabalhos/:id', async (req: Request, res: Response) => {
   const id = Number(req.params.id)
   if (!Number.isInteger(id) || id <= 0) {
     return res.status(400).json({ error: 'ID inválido. Use um inteiro positivo.' })
   }
 
   try {
-    // const parsedData  = updateProductSchema.parse(req.body)
-    // const updated = await prisma.product.update({ where: { id }, data })
-    const parsedData = updateProductSchema.parse(req.body);
+    const parsedData = updateTrabalhoSchema.parse(req.body);
 
     // Remove chaves undefined
     const data = Object.fromEntries(
       Object.entries(parsedData).filter(([_, v]) => v !== undefined)
     );
 
-    const updated = await prisma.product.update({
+    const updated = await prisma.trabalhoRelacionado.update({
       where: { id },
       data,
     });
@@ -124,20 +119,19 @@ app.put('/api/produtos/:id', async (req: Request, res: Response) => {
           message: e.message,
         })),
       })
-
     }
 
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-      return res.status(404).json({ error: 'Produto não encontrado' })
+      return res.status(404).json({ error: 'Trabalho não encontrado' })
     }
 
-    console.error(`PUT /api/products/${req.params.id} error:`, error)
-    return res.status(500).json({ error: 'Erro interno ao atualizar produto' })
+    console.error(`PUT /api/trabalhos/${req.params.id} error:`, error)
+    return res.status(500).json({ error: 'Erro interno ao atualizar trabalho' })
   }
 })
 
-// Rota para deletar produto
-app.delete('/api/produtos/:id', async (req: Request, res: Response) => {
+// Rota para deletar trabalho
+app.delete('/api/trabalhos/:id', async (req: Request, res: Response) => {
   const id = Number(req.params.id);
 
   if (!Number.isInteger(id) || id <= 0) {
@@ -145,16 +139,15 @@ app.delete('/api/produtos/:id', async (req: Request, res: Response) => {
   }
 
   try {
-
-    await prisma.product.delete({ where: { id } });
+    await prisma.trabalhoRelacionado.delete({ where: { id } });
     return res.status(204).send();
 
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-      return res.status(404).json({ error: 'Produto não encontrado' });
+      return res.status(404).json({ error: 'Trabalho não encontrado' });
     }
 
-    console.error(`DELETE /api/products/${req.params.id}`, error);
-    return res.status(500).json({ error: 'Erro interno ao deletar produto.' });
+    console.error(`DELETE /api/trabalhos/${req.params.id}`, error);
+    return res.status(500).json({ error: 'Erro interno ao deletar trabalho.' });
   }
 });
