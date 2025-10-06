@@ -1,69 +1,53 @@
-# React + TypeScript + Vite
+# Projeto de Trabalhos Relacionados (Backend + Frontend)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este projeto consiste em uma API em Node.js/Express com banco de dados PostgreSQL (via Prisma e Docker) e frontend em React, que mostra algumas informações sobre testes de software.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Instruções para execução
 
-## Expanding the ESLint configuration
+### 1️⃣ Rodar o Docker Compose
+Inicia o container do PostgreSQL:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+docker-compose up -d
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 2️⃣ Inicializar o banco de dados com dados mockados
+Popula a base de dados com registros iniciais:
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+npx prisma db seed
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### 3️⃣ Verificar se os dados foram inseridos corretamente
+Abre o Prisma Studio para inspeção visual do banco:
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+npx prisma studio
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### 4️⃣ Testar a conexão com o banco
+Executa um script de teste da API:
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+npx tsx src/testConnection.ts
+
+### 5️⃣ Executar o backend
+Inicia o servidor Node.js:
+
+npm run dev
+
+---
+
+## Apresentação
+
+- API: https://youtu.be/ULD_or9U_rw  
+- Integração Frontend + Backend: https://youtu.be/LMIj9VX4uHM  
+
+---
+
+## Política de CORS
+
+O backend utiliza o pacote `cors` para permitir requisições do frontend.  
+
+- **Origens permitidas:** `http://localhost:5173` (frontend em desenvolvimento)  
+- **Métodos permitidos:** `GET`, `POST`, `PUT`, `DELETE`, `OPTIONS`  
+- **Headers permitidos:** `Content-Type`, `Authorization`  
+
+Essa configuração garante que apenas o frontend autorizado possa acessar a API, evitando bloqueios de CORS.  
+
+> ⚠️ Em produção, recomenda-se atualizar as origens permitidas para o domínio real do frontend.
