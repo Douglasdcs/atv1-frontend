@@ -20,6 +20,13 @@ app.listen(PORT, () => {
 // Middleware para JSON
 app.use(express.json());
 
+// Middleware CORS
+app.use(cors({
+  origin: 'http://localhost:5173', // URL do seu frontend
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  credentials: true
+}));
+
 // Rota para pegar todos os trabalhos relacionados
 app.get('/api/trabalhos', async (req: Request, res: Response) => {
   try{
