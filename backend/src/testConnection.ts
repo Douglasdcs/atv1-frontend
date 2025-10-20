@@ -6,7 +6,7 @@ async function test() {
   const trabalhos = await prisma.trabalhoRelacionado.findMany();
 
   trabalhos.forEach(element => {
-    console.log(`${element.title} - R$ ${element.autor}`)
+    console.log(`${element.title} - ${element.autor}`)
   });
 }
 
