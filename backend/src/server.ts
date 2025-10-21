@@ -2,16 +2,14 @@ import { PrismaClient, Prisma } from '@prisma/client';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { z, ZodError } from 'zod'
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 const app = express();
 
 const prisma = new PrismaClient();
 
 const PORT = 3001;
-
-app.get('/', (req: Request, res: Response) => {
-    res.json({message: '♪♫♪♫ Servidor rodando'});
-});
 
 app.listen(PORT, () => {
     console.log('♪♫♪♫ Servidor rodando ')
@@ -26,6 +24,74 @@ app.use(cors({
   methods: ['GET','POST','PUT','DELETE','OPTIONS'],
   credentials: true
 }));
+
+const registerSchema = z.object({
+  email: z.email('Email inválido'),
+  password: z.string().min(6, 'Password deve ter pelo menos 6 caracteres'),
+  name: z.string().optional()
+});
+
+const loginSchema = z.object({
+  email: z.email('Email inválido'),
+  password: z.string().min(1, 'Password é obrigatório')
+});
+
+const JWT_SECRET = 'seu_segredo_jwt_aqui'; // Em produção, use variáveis de ambiente
+
+interface AuthRequest extends Request {
+  user?: {
+    id: number;
+    email: string;
+    name: string | null;
+  };
+}
+
+// Middleware de autenticação
+const authMiddleware = async (req: AuthRequest, res: Response, next: any) => {
+  try {
+    // Pega o token do header Authorization
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'Token de autenticação ausente' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'Token de autenticação inválido' });
+    }
+
+    // Verifica o token
+    const decoded: any = jwt.verify(token, JWT_SECRET) as {userId: number};
+
+    // Busca o usuário no banco
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId },
+      select: { id: true, email: true, name: true }
+    });
+    if (!user) {
+      return res.status(401).json({ error: 'Usuário não encontrado' });
+    }
+
+    // Anexa o usuário à requisição
+    req.user = user;
+  
+    // Continua para a próxima função middleware ou rota
+    next();
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({ error: 'Token de autenticação inválido' });
+    }
+    if (error instanceof jwt.TokenExpiredError) {
+      return res.status(401).json({ error: 'Token de autenticação expirado' });
+    }
+    return res.status(500).json({ error: 'Erro interno no servidor de autenticação' });
+  }
+}
+
+
+app.get('/', (req: Request, res: Response) => {
+    res.json({message: '♪♫♪♫ Servidor rodando'});
+});
 
 // Rota para pegar todos os trabalhos relacionados
 app.get('/api/trabalhos', async (req: Request, res: Response) => {
@@ -157,4 +223,116 @@ app.delete('/api/trabalhos/:id', async (req: Request, res: Response) => {
     console.error(`DELETE /api/trabalhos/${req.params.id}`, error);
     return res.status(500).json({ error: 'Erro interno ao deletar trabalho.' });
   }
+});
+
+// Rota para criação de usuário
+app.post('/api/auth/register', async (req: Request, res: Response) => {
+  try {
+    // Valida dados
+    const { email, password, name } = registerSchema.parse(req.body);
+
+    // Verificar se usuário existe
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      return res.status(409).json({ error: 'Usuário já existe' });
+    }
+
+    // Cria hash da senha
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Cria usuário
+    const newUser = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        name: name ?? null   // undefined para null
+      },
+    });
+
+    // Gerar token JWT
+    const token = jwt.sign({ userId: newUser.id }, JWT_SECRET, { expiresIn: '1d' });
+
+    // Retornar sucesso
+    return res.status(201).json({
+      message: 'Usuário criado com sucesso',
+      token,
+      user: {
+        id: newUser.id,
+        email: newUser.email,
+        name: newUser.name
+      }
+    });
+
+  } catch (error) {
+
+    if (error instanceof ZodError) {
+      return res.status(400).json({
+        error: 'Payload inválido',
+        issues: error.issues.map((e) => ({
+          path: e.path.join('.'),
+          message: e.message,
+        })),
+      })
+    }
+
+    console.error('POST /api/auth/register:', error)
+    return res.status(500).json({ error: 'Erro interno no servidor ao criar usuário' })
+  }
+})
+
+// Rota para login de usuário
+app.post('/api/auth/login', async (req: Request, res: Response) => {
+  try {
+    // Valida dados
+    const { email, password } = registerSchema.parse(req.body);
+
+    // Buscar usuário no banco
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return res.status(401).json({ error: 'Email ou senha inválidos' });
+    }
+
+    // Comparar senha fornecida com a hash armazenada
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Email ou senha inválidos' });
+    }
+
+    // Gerar token JWT
+    const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '1d' });
+
+    // Retornar sucesso
+    return res.status(201).json({
+      message: 'Usuário logado com sucesso',
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name
+      }
+    });
+
+  } catch (error) {
+
+    if (error instanceof ZodError) {
+      return res.status(400).json({
+        error: 'Payload inválido',
+        issues: error.issues.map((e) => ({
+          path: e.path.join('.'),
+          message: e.message,
+        })),
+      })
+    }
+
+    console.error('POST /api/auth/login:', error)
+    return res.status(500).json({ error: 'Erro interno no servidor ao logar usuário' })
+  }
+})
+
+// Rota protegida para verificar funcionamento do middleware
+app.get('/api/auth/me', authMiddleware, async (req: AuthRequest, res: Response) => {
+  return res.status(200).json({ 
+    message: 'Usuário autenticado com sucesso',
+    user: req.user
+  });
 });

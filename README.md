@@ -31,12 +31,16 @@ Inicia o servidor Node.js:
 
 npm run dev
 
+### OBS: Criar arquivo .env com configurações de acesso ao banco
+Arquivo base inserido. Atualizar dados se necessário!
+
 ---
 
 ## Apresentação
 
 - API: https://youtu.be/ULD_or9U_rw  
-- Integração Frontend + Backend: https://youtu.be/LMIj9VX4uHM  
+- Integração Frontend + Backend: https://youtu.be/LMIj9VX4uHM
+- Autenticação e Middleware: 
 
 ---
 
@@ -51,3 +55,12 @@ O backend utiliza o pacote `cors` para permitir requisições do frontend.
 Essa configuração garante que apenas o frontend autorizado possa acessar a API, evitando bloqueios de CORS.  
 
 > ⚠️ Em produção, recomenda-se atualizar as origens permitidas para o domínio real do frontend.
+
+
+## Pacotes usados e comandos úteis
+
+- npm install @prisma/client
+- npm install cors
+- npm install -D @types/cors
+- npx prisma migrate dev
+- npx prisma db seed
