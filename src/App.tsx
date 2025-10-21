@@ -9,6 +9,7 @@ import type { TrabalhoRelacionadoData } from './components/TrabalhoRelacionadoFo
 import { useEffect, useState } from "react";
 import type { TrabalhoRelacionado } from './entities/TrabalhoRelacionado';
 import { fetchTrabalhos } from './services/api';
+import { AuthProvider } from './contexts/AuthContext';
 
 export default function App() {
   const [trabalhos, setTrabalhos] = useState<TrabalhoRelacionado[]>([]);
@@ -87,48 +88,50 @@ export default function App() {
   }
 
   return (
-    <BrowserRouter>
-      <div className="d-flex flex-column min-vh-100">
-        <TopNavbar />
-        <main className="flex-fill overflow-auto">
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <div className="container-fluid py-4">
-                  <SobreProjeto />
-                  <CardSection />
-                </div>
-              }
-            />
-            <Route
-              path="/trabalhos"
-              element={
-                <div className="container-fluid py-5">
-                  <h2 className="mb-4">Trabalhos Relacionados</h2>
-                  <TrabalhoRelacionadoForm
-                    onAddTrabalho={(trabalho) => {
-                      console.log("Trabalho adicionado:", trabalho);
-                      handleAddTrabalho(trabalho);
-                    }}
-                  />
-                  <TrabalhosRelacionados trabalhos={trabalhos} setTrabalhos={setTrabalhos} />
-                </div>
-              }
-            />
-            <Route
-              path="/contato"
-              element={
-                <div className="container-fluid text-center py-5">
-                  <h2>Contato</h2>
-                  <p>Douglas: douglas@gmail.com</p>
-                </div>
-              }
-            />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
-    </BrowserRouter>
+    <AuthProvider> {}
+      <BrowserRouter>
+        <div className="d-flex flex-column min-vh-100">
+          <TopNavbar />
+          <main className="flex-fill overflow-auto">
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <div className="container-fluid py-4">
+                    <SobreProjeto />
+                    <CardSection />
+                  </div>
+                }
+              />
+              <Route
+                path="/trabalhos"
+                element={
+                  <div className="container-fluid py-5">
+                    <h2 className="mb-4">Trabalhos Relacionados</h2>
+                    <TrabalhoRelacionadoForm
+                      onAddTrabalho={(trabalho) => {
+                        console.log("Trabalho adicionado:", trabalho);
+                        handleAddTrabalho(trabalho);
+                      }}
+                    />
+                    <TrabalhosRelacionados trabalhos={trabalhos} setTrabalhos={setTrabalhos} />
+                  </div>
+                }
+              />
+              <Route
+                path="/contato"
+                element={
+                  <div className="container-fluid text-center py-5">
+                    <h2>Contato</h2>
+                    <p>Douglas: douglas@gmail.com</p>
+                  </div>
+                }
+              />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
