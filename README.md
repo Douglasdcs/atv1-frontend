@@ -40,7 +40,7 @@ Arquivo base inserido. Atualizar dados se necessário!
 
 - API: https://youtu.be/ULD_or9U_rw  
 - Integração Frontend + Backend: https://youtu.be/LMIj9VX4uHM
-- Autenticação e Middleware: 
+- Autenticação e Middleware: https://youtu.be/jnHwN7H2Ruk
 
 ---
 
@@ -64,3 +64,5 @@ Essa configuração garante que apenas o frontend autorizado possa acessar a API
 - npm install -D @types/cors
 - npx prisma migrate dev
 - npx prisma db seed
+- npm install bcryptjs jsonwebtoken
+- npm install -D @types/bcryptjs @types/jsonwebtoken
