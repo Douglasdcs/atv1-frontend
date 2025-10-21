@@ -20,7 +20,7 @@ app.use(express.json());
 
 // Middleware CORS
 app.use(cors({
-  origin: 'http://localhost:5173', // URL do seu frontend
+  origin: ['http://localhost:5173', 'http://127.0.0.1:5173'], // URL do seu frontend
   methods: ['GET','POST','PUT','DELETE','OPTIONS'],
   credentials: true
 }));
@@ -133,12 +133,15 @@ export const createTrabalhoSchema = z.object({
 })
 
 // Rota para criação de trabalho
-app.post('/api/trabalhos', async (req: Request, res: Response) => {
+app.post('/api/trabalhos', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
 
     const data = createTrabalhoSchema.parse(req.body) // Validações
     const newTrabalho = await prisma.trabalhoRelacionado.create({ data })
-    return res.status(201).json(newTrabalho)
+    return res.status(201).json({
+      message: 'Trabalho criado com sucesso',
+      newTrabalho
+    });  
 
   } catch (error) {
 
@@ -161,7 +164,7 @@ app.post('/api/trabalhos', async (req: Request, res: Response) => {
 export const updateTrabalhoSchema = createTrabalhoSchema.partial();
 
 // Rota para atualização de trabalho
-app.put('/api/trabalhos/:id', async (req: Request, res: Response) => {
+app.put('/api/trabalhos/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
   const id = Number(req.params.id)
   if (!Number.isInteger(id) || id <= 0) {
     return res.status(400).json({ error: 'ID inválido. Use um inteiro positivo.' })
@@ -180,7 +183,10 @@ app.put('/api/trabalhos/:id', async (req: Request, res: Response) => {
       data,
     });
 
-    return res.status(200).json(updated);
+    return res.status(200).json({
+      message: 'Trabalho atualizado com sucesso',
+      updated,
+    });
 
   } catch (error) {
 
@@ -204,7 +210,7 @@ app.put('/api/trabalhos/:id', async (req: Request, res: Response) => {
 })
 
 // Rota para deletar trabalho
-app.delete('/api/trabalhos/:id', async (req: Request, res: Response) => {
+app.delete('/api/trabalhos/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
   const id = Number(req.params.id);
 
   if (!Number.isInteger(id) || id <= 0) {
@@ -213,7 +219,9 @@ app.delete('/api/trabalhos/:id', async (req: Request, res: Response) => {
 
   try {
     await prisma.trabalhoRelacionado.delete({ where: { id } });
-    return res.status(204).send();
+    return res.status(200).json({
+      message: 'Trabalho deletado com sucesso'
+    });
 
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
